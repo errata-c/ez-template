@@ -1,14 +1,25 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(EZ_TEMPLATE
-VERSION 1.0.0
+VERSION 0.1.0
 LANGUAGES C CXX)
 
 set(PACKAGE_NAME ez-template)
 set(TARGET_NAME template)
 
 include(GNUInstallDirs)
-find_package(ez-cmake CONFIG REQUIRED)
+include(FetchContent)
+
+option(BUILD_TESTS "Build the test executables" ON)
+option(SEPARATE_DIRECTORY "Install the package into its own directory" ON)
+set(CONFIG_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${PACKAGE_NAME}" CACHE STRING "The relative directory to install package config files.")
+
+FetchContent_Declare(
+	ez-cmake
+	GIT_REPOSITORY "https://github.com/errata-c/ez-cmake.git"
+	GIT_TAG "a59477ebb9d8ce1f686b99118586310f47cb7a80"
+)
+FetchContent_MakeAvailable(ez-cmake)
 
 # Find deps
 #find_package(glm CONFIG REQUIRED)
@@ -70,15 +81,15 @@ install_package(
 	COMPATIBILITY "SameMajorVersion"
 
 	# Relative install location of the package config files.
-	DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PACKAGE_NAME}"
+	DESTINATION "${CONFIG_DIR}"
 
 	# Pre and Post configuration files for the packages. Files are run as scripts when the package is found.
 	# Most dependencies must be found in the preconfig file, except non-target dependencies
 	# Non-target dependencies should probably be found in the post config, and added onto the imported target manually.
 	# Non-target dependencies kinda suck, avoid them if you can.
 
-	#PRECONFIG "${CMAKE_CURRENT_SOURCE_DIR}/preconfig.cmake"
-	#POSTCONFIG "${CMAKE_CURRENT_SOURCE_DIR}/postconfig.cmake"
+	#PRECONFIG "${CMAKE_CURRENT_SOURCE_DIR}/cmake/preconfig.cmake"
+	#POSTCONFIG "${CMAKE_CURRENT_SOURCE_DIR}/cmake/postconfig.cmake"
 
 	# Only add this option if the library is header only, or an interface library.
 	ARCH_INDEPENDENT
