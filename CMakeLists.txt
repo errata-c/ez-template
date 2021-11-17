@@ -10,14 +10,13 @@ set(TARGET_NAME template)
 include(GNUInstallDirs)
 include(FetchContent)
 
-option(BUILD_TESTS "Build the test executables" ON)
-option(SEPARATE_DIRECTORY "Install the package into its own directory" ON)
-set(CONFIG_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${PACKAGE_NAME}" CACHE STRING "The relative directory to install package config files.")
+option(${PACKAGE_NAME}_BUILD_TESTS "Build the test executables" ON)
+set(${PACKAGE_NAME}_CONFIG_DIR "${CMAKE_INSTALL_DATAROOTDIR}/${PACKAGE_NAME}" CACHE STRING "The relative directory to install package config files.")
 
 FetchContent_Declare(
 	ez-cmake
 	GIT_REPOSITORY "https://github.com/errata-c/ez-cmake.git"
-	GIT_TAG "a59477ebb9d8ce1f686b99118586310f47cb7a80"
+	GIT_TAG "main"
 )
 FetchContent_MakeAvailable(ez-cmake)
 
@@ -47,13 +46,8 @@ target_compile_features(${TARGET_NAME} INTERFACE cxx_std_17)
 add_library("ez::${TARGET_NAME}" ALIAS "${TARGET_NAME}")
 
 # Build the tests once the option is enabled.
-if(${BUILD_TESTS})
+if(${${PACKAGE_NAME}_BUILD_TESTS})
 	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tests")
-endif()
-
-# Set the proper installation path
-if((DEFINED $ENV{CMAKE_PREFIX_PATH}) AND ($ENV{CMAKE_PREFIX_PATH} STREQUAL ${CMAKE_INSTALL_PREFIX}))
-	set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${CMAKE_PROJECT_NAME})
 endif()
 
 install(
@@ -81,15 +75,15 @@ install_package(
 	COMPATIBILITY "SameMajorVersion"
 
 	# Relative install location of the package config files.
-	DESTINATION "${CONFIG_DIR}"
+	DESTINATION "${${PACKAGE_NAME}_CONFIG_DIR}"
 
 	# Pre and Post configuration files for the packages. Files are run as scripts when the package is found.
 	# Most dependencies must be found in the preconfig file, except non-target dependencies
 	# Non-target dependencies should probably be found in the post config, and added onto the imported target manually.
 	# Non-target dependencies kinda suck, avoid them if you can.
 
-	#PRECONFIG "${CMAKE_CURRENT_SOURCE_DIR}/cmake/preconfig.cmake"
-	#POSTCONFIG "${CMAKE_CURRENT_SOURCE_DIR}/cmake/postconfig.cmake"
+	#PRECONFIG "cmake/preconfig.cmake"
+	#POSTCONFIG "cmake/postconfig.cmake"
 
 	# Only add this option if the library is header only, or an interface library.
 	ARCH_INDEPENDENT
