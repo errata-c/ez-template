@@ -1,2 +1,2 @@
 # ez-template
-Template (boilerplate) for ezlib library, for faster setup.
+Template (boilerplate) for ez-lib library
